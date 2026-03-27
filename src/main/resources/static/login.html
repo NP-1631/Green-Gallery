@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>GreenGallery – Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --forest:   #1b3a2d;
+          --moss:     #2e5e44;
+          --sage:     #5a8f6e;
+          --mint:     #a8d5b5;
+          --cream:    #f7f4ef;
+          --paper:    #fdfcf9;
+          --border:   #d6e4d6;
+          --text:     #1a2418;
+          --muted:    #6b7c68;
+        }
+
+        html, body {
+          height: 100%;
+          font-family: 'Jost', sans-serif;
+          color: var(--text);
+        }
+
+        body {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+          background:
+            radial-gradient(ellipse 60% 80% at 5% 50%, rgba(90,143,110,0.15) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 50% at 95% 10%, rgba(168,213,181,0.15) 0%, transparent 55%),
+            var(--cream);
+        }
+
+        nav {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 22px 48px;
+        }
+        .logo {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          text-decoration: none;
+        }
+        .logo-icon {
+          width: 36px; height: 36px;
+          background: var(--forest);
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 18px;
+        }
+        .logo-text {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.35rem;
+          color: var(--forest);
+          font-weight: 700;
+        }
+        .btn-back {
+          background: transparent;
+          color: var(--forest);
+          border: 1.5px solid var(--border);
+          padding: 9px 22px;
+          border-radius: 50px;
+          font-family: 'Jost', sans-serif;
+          font-size: 0.86rem;
+          font-weight: 500;
+          cursor: pointer;
+          text-decoration: none;
+          display: inline-block;
+          transition: border-color 0.2s, background 0.2s;
+        }
+        .btn-back:hover { border-color: var(--sage); background: rgba(168,213,181,0.2); }
+
+        .login-body {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px 24px 60px;
+        }
+
+        .login-card {
+          background: var(--paper);
+          border: 1px solid var(--border);
+          border-radius: 28px;
+          padding: 48px 44px;
+          width: 100%;
+          max-width: 420px;
+          box-shadow: 0 20px 60px rgba(27,58,45,0.1);
+          animation: fadeUp 0.6s ease both;
+        }
+
+        .login-header { text-align: center; margin-bottom: 36px; }
+        .login-leaf {
+          width: 58px; height: 58px;
+          background: linear-gradient(135deg, var(--moss), var(--sage));
+          border-radius: 18px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 26px;
+          margin: 0 auto 16px;
+          box-shadow: 0 6px 20px rgba(27,58,45,0.2);
+        }
+        .login-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.75rem;
+          color: var(--forest);
+          margin-bottom: 6px;
+        }
+        .login-sub {
+          font-size: 0.88rem;
+          color: var(--muted);
+          font-weight: 300;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+        .form-group label {
+          font-size: 0.82rem;
+          font-weight: 600;
+          color: var(--forest);
+          letter-spacing: 0.3px;
+        }
+        .input-wrap { position: relative; }
+        .form-group input {
+          width: 100%;
+          padding: 13px 16px;
+          border: 1.5px solid var(--border);
+          border-radius: 12px;
+          font-family: 'Jost', sans-serif;
+          font-size: 0.93rem;
+          color: var(--text);
+          background: var(--cream);
+          outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus {
+          border-color: var(--sage);
+          box-shadow: 0 0 0 3px rgba(90,143,110,0.12);
+          background: #fff;
+        }
+        .form-group input::placeholder { color: #b0b8aa; }
+
+        .toggle-pw {
+          position: absolute;
+          right: 14px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 16px;
+          color: var(--muted);
+          padding: 0;
+          line-height: 1;
+        }
+
+        .form-extras {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 28px;
+        }
+        .remember {
+          display: flex; align-items: center; gap: 8px;
+          font-size: 0.82rem; color: var(--muted); cursor: pointer;
+        }
+        .remember input[type="checkbox"] { accent-color: var(--moss); width: 15px; height: 15px; }
+        .forgot { font-size: 0.82rem; color: var(--sage); text-decoration: none; font-weight: 500; }
+        .forgot:hover { text-decoration: underline; }
+
+        .error-msg {
+          display: none;
+          background: #fef2f2;
+          border: 1px solid #fca5a5;
+          color: #b91c1c;
+          padding: 10px 14px;
+          border-radius: 10px;
+          font-size: 0.82rem;
+          margin-bottom: 16px;
+          text-align: center;
+        }
+        .error-msg.show { display: block; }
+
+        .btn-submit {
+          width: 100%;
+          background: var(--forest);
+          color: #fff;
+          border: none;
+          padding: 15px;
+          border-radius: 14px;
+          font-family: 'Jost', sans-serif;
+          font-size: 0.97rem;
+          font-weight: 600;
+          cursor: pointer;
+          letter-spacing: 0.4px;
+          box-shadow: 0 6px 20px rgba(27,58,45,0.28);
+          transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+          margin-bottom: 24px;
+        }
+        .btn-submit:hover {
+          background: var(--moss);
+          transform: translateY(-1px);
+          box-shadow: 0 10px 28px rgba(27,58,45,0.32);
+        }
+        .btn-submit:active { transform: translateY(0); }
+
+        .divider {
+          display: flex; align-items: center; gap: 12px;
+          margin-bottom: 18px;
+          font-size: 0.78rem; color: #b0b8aa;
+        }
+        .divider::before, .divider::after {
+          content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+
+        .signup-prompt {
+          text-align: center;
+          font-size: 0.84rem;
+          color: var(--muted);
+        }
+        .signup-prompt a {
+          color: var(--moss);
+          font-weight: 600;
+          text-decoration: none;
+        }
+        .signup-prompt a:hover { text-decoration: underline; }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+          nav { padding: 18px 20px; }
+          .login-card { padding: 32px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a class="logo" href="index.html">
+        <div class="logo-icon">🌿</div>
+        <span class="logo-text">GreenGallery</span>
+    </a>
+    <a class="btn-back" href="index.html">← Back to Home</a>
+</nav>
+
+<div class="login-body">
+    <div class="login-card">
+
+        <div class="login-header">
+            <div class="login-leaf">🌿</div>
+            <h2 class="login-title">Welcome back</h2>
+            <p class="login-sub">Sign in to your plant collection</p>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="you@example.com" />
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+                <input type="password" id="password" placeholder="Enter your password" />
+                <button class="toggle-pw" onclick="togglePassword()" id="toggleBtn" title="Show/Hide password">👁️</button>
+            </div>
+        </div>
+
+        <div class="form-extras">
+            <label class="remember">
+                <input type="checkbox" id="remember" /> Remember me
+            </label>
+            <a href="#" class="forgot">Forgot password?</a>
+        </div>
+
+        <div class="error-msg" id="errorMsg">⚠️ Please enter your email and password.</div>
+
+        <button class="btn-submit" onclick="handleLogin()">Sign In</button>
+
+        <div class="divider">or</div>
+
+        <p class="signup-prompt">
+            Don't have an account? <a href="signup.html">Sign up</a>
+        </p>
+
+    </div>
+</div>
+
+<script>
+    // ── Toggle password visibility ──
+ function togglePassword() {
+     const input = document.getElementById('password');
+     const btn = document.getElementById('toggleBtn');
+
+     if (input.type === 'password') {
+         input.type = 'text';
+         btn.textContent = '👁️';
+     } else {
+         input.type = 'password';
+         btn.textContent = '👁️';
+     }
+ }
+
+
+ // ── Handle login ──
+ async function handleLogin() {
+
+     const email = document.getElementById('email').value.trim();
+     const password = document.getElementById('password').value.trim();
+     const errorMsg = document.getElementById('errorMsg');
+
+     if (!email || !password) {
+         errorMsg.textContent = "⚠️ Please enter email and password";
+         errorMsg.classList.add('show');
+         return;
+     }
+
+     errorMsg.classList.remove('show');
+
+     try {
+
+         const res = await fetch("http://localhost:8080/api/auth/login", {
+             method: "POST",
+             headers: {
+                 "Content-Type": "application/json"
+             },
+             body: JSON.stringify({ email, password })
+         });
+
+         if (!res.ok) throw new Error("Invalid credentials");
+
+         const data = await res.json();
+
+         console.log("Login response:", data);
+
+         // ✅ Save user data
+         sessionStorage.setItem("userId", data.id);
+         sessionStorage.setItem("userRole", data.role);
+
+         // IMPORTANT (dashboard uses this)
+         localStorage.setItem("user", JSON.stringify(data));
+
+         // also optional
+         localStorage.setItem("currentUser", JSON.stringify(data));
+
+         // ✅ Role-based redirect
+         const role = (data.role || '').toUpperCase().trim();
+
+         if (role === "ADMIN") {
+             window.location.href = "dashboard.html";
+         }
+         else if (role === "USER") {
+             window.location.href = "userdashboard.html";
+         }
+         else {
+             alert("⚠️ Access Denied");
+         }
+
+     }
+     catch (err) {
+         errorMsg.textContent = "⚠️ Invalid email or password";
+         errorMsg.classList.add('show');
+         console.error("Login error:", err);
+     }
+ }
+
+
+ // ── Enter key support ──
+ document.addEventListener('keydown', function(e) {
+     if (e.key === 'Enter') handleLogin();
+ });
+</script>
+</body>
+</html>

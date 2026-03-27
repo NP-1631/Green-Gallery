@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>GreenGallery – Upload & Manage Plants</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --forest:    #1b3a2d;
+          --moss:      #2e5e44;
+          --sage:      #5a8f6e;
+          --mint:      #a8d5b5;
+          --mint-pale: #e4f4ea;
+          --cream:     #f7f4ef;
+          --paper:     #fdfcf9;
+          --border:    #d6e4d6;
+          --text:      #1a2418;
+          --muted:     #6b7c68;
+          --sidebar-w: 240px;
+          --red:       #dc2626;
+          --red-pale:  #fef2f2;
+        }
+
+        html, body { height: 100%; font-family: 'Jost', sans-serif; color: var(--text); }
+        body { display: flex; background: var(--cream); min-height: 100vh; }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+          width: var(--sidebar-w); background: var(--forest);
+          display: flex; flex-direction: column; flex-shrink: 0;
+          position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+          animation: slideIn 0.5s ease both;
+        }
+        @keyframes slideIn { from { transform: translateX(-100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+        .sidebar-logo {
+          display: flex; align-items: center; gap: 10px;
+          padding: 28px 22px 24px;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+          text-decoration: none;
+        }
+        .logo-icon {
+          width: 34px; height: 34px; background: rgba(255,255,255,0.12);
+          border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px;
+        }
+        .logo-text { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #fff; font-weight: 700; }
+        .sidebar-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
+        .nav-item {
+          display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 12px;
+          color: rgba(255,255,255,0.65); font-size: 0.88rem; font-weight: 500;
+          cursor: pointer; transition: background 0.2s, color 0.2s;
+          text-decoration: none; border: none; background: none;
+          width: 100%; text-align: left; font-family: 'Jost', sans-serif;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .nav-item.active { background: rgba(255,255,255,0.14); color: #fff; }
+        .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+        .nav-section-label {
+          font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase;
+          color: rgba(255,255,255,0.3); padding: 16px 14px 6px; font-weight: 600;
+        }
+        .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+        .user-card {
+          display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+          border-radius: 12px; background: rgba(255,255,255,0.07);
+        }
+        .user-avatar {
+          width: 34px; height: 34px;
+          background: linear-gradient(135deg, var(--sage), var(--mint));
+          border-radius: 50%; display: flex; align-items: center; justify-content: center;
+          font-size: 13px; font-weight: 600; color: var(--forest); flex-shrink: 0;
+        }
+        .user-info { flex: 1; min-width: 0; }
+        .user-name { font-size: 0.82rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role { font-size: 0.7rem; color: rgba(255,255,255,0.45); }
+        .logout-btn { background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.4); font-size: 14px; transition: color 0.2s; padding: 4px; }
+        .logout-btn:hover { color: #fff; }
+
+        /* ── MAIN ── */
+        .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* ── TOP BAR ── */
+        .topbar {
+          background: var(--paper); border-bottom: 1px solid var(--border);
+          padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
+          position: sticky; top: 0; z-index: 50;
+          animation: fadeDown 0.4s ease both;
+        }
+        @keyframes fadeDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+        .topbar-left h1 { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: var(--forest); font-weight: 700; }
+        .topbar-left p { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+        .btn-back-dash {
+          display: flex; align-items: center; gap: 8px;
+          background: transparent; color: var(--forest); border: 1.5px solid var(--border);
+          padding: 9px 18px; border-radius: 10px; font-family: 'Jost', sans-serif;
+          font-size: 0.85rem; font-weight: 500; cursor: pointer; text-decoration: none;
+          transition: border-color 0.2s, background 0.2s;
+        }
+        .btn-back-dash:hover { border-color: var(--sage); background: var(--mint-pale); }
+
+        /* ── CONTENT ── */
+        .content { flex: 1; padding: 28px 32px; animation: fadeUp 0.5s 0.1s ease both; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+        /* ── CRUD TABS ── */
+        .crud-tabs {
+          display: flex; gap: 4px; background: var(--mint-pale);
+          border-radius: 14px; padding: 5px; margin-bottom: 28px; width: fit-content;
+        }
+        .crud-tab {
+          padding: 9px 22px; border-radius: 10px; font-size: 0.88rem; font-weight: 500;
+          cursor: pointer; border: none; background: none; color: var(--muted);
+          font-family: 'Jost', sans-serif; transition: background 0.2s, color 0.2s;
+          display: flex; align-items: center; gap: 7px;
+        }
+        .crud-tab.active { background: var(--forest); color: #fff; box-shadow: 0 2px 8px rgba(27,58,45,0.2); }
+
+        .panel { display: none; }
+        .panel.active { display: block; animation: fadeUp 0.3s ease both; }
+
+        /* ══ CREATE PANEL ══ */
+        .create-layout { display: grid; grid-template-columns: 1fr 400px; gap: 28px; align-items: start; }
+        .left-panel { display: flex; flex-direction: column; gap: 20px; }
+
+        .drop-zone {
+          background: var(--paper); border: 2.5px dashed var(--border);
+          border-radius: 24px; min-height: 300px;
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          gap: 14px; cursor: pointer;
+          transition: border-color 0.25s, background 0.25s, transform 0.2s;
+          position: relative; overflow: hidden; text-align: center; padding: 36px 24px;
+        }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--sage); background: var(--mint-pale); transform: scale(1.005); }
+        .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+        .drop-illustration {
+          width: 80px; height: 80px; background: var(--mint-pale); border-radius: 50%;
+          display: flex; align-items: center; justify-content: center; font-size: 2.4rem;
+          transition: transform 0.3s;
+        }
+        .drop-zone:hover .drop-illustration { transform: scale(1.1) rotate(-5deg); }
+        .drop-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--forest); }
+        .drop-sub { font-size: 0.84rem; color: var(--muted); line-height: 1.6; }
+        .drop-sub strong { color: var(--moss); }
+        .drop-formats { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; }
+        .fmt-tag { background: var(--mint-pale); color: var(--moss); font-size: 0.7rem; font-weight: 600; padding: 3px 9px; border-radius: 6px; }
+
+        .preview-area { display: none; border-radius: 20px; overflow: hidden; position: relative; border: 1px solid var(--border); }
+        .preview-area.show { display: block; }
+        .preview-img { width: 100%; max-height: 300px; object-fit: cover; display: block; }
+        .preview-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(27,58,45,0.6) 0%, transparent 50%); }
+        .preview-bottom { position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+        .preview-filename { font-size: 0.8rem; color: rgba(255,255,255,0.9); font-weight: 500; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .preview-size { font-size: 0.72rem; color: rgba(255,255,255,0.6); margin-top: 2px; }
+        .btn-change {
+          background: rgba(255,255,255,0.2); backdrop-filter: blur(8px);
+          border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 7px 13px;
+          border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 500;
+          cursor: pointer; position: relative; z-index: 2; transition: background 0.2s;
+        }
+        .btn-change input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .btn-change:hover { background: rgba(255,255,255,0.32); }
+
+        /* Form */
+        .right-panel {
+          background: var(--paper); border: 1px solid var(--border);
+          border-radius: 24px; padding: 28px 26px; position: sticky; top: 90px;
+        }
+        .form-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--forest); margin-bottom: 4px; }
+        .form-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 22px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+        .form-group label { font-size: 0.81rem; font-weight: 600; color: var(--forest); }
+        .required { color: var(--sage); }
+        .form-group input, .form-group select, .form-group textarea {
+          padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 11px;
+          font-family: 'Jost', sans-serif; font-size: 0.88rem; color: var(--text);
+          background: var(--cream); outline: none; resize: none; width: 100%;
+          transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+          border-color: var(--sage); box-shadow: 0 0 0 3px rgba(90,143,110,0.12); background: #fff;
+        }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: #b0b8aa; }
+        .char-count { font-size: 0.7rem; color: var(--muted); text-align: right; margin-top: 2px; }
+
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 4px; }
+        .cat-option {
+          display: flex; align-items: center; gap: 7px; padding: 9px 11px;
+          border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer;
+          transition: border-color 0.2s, background 0.2s;
+          font-size: 0.8rem; font-weight: 500; color: var(--muted);
+        }
+        .cat-option:hover { border-color: var(--sage); background: var(--mint-pale); color: var(--forest); }
+        .cat-option.selected { border-color: var(--moss); background: var(--mint-pale); color: var(--forest); font-weight: 600; }
+        .cat-option input[type="radio"] { display: none; }
+
+        .form-divider { height: 1px; background: var(--border); margin: 4px 0 16px; }
+        .error-banner { display:none; background: var(--red-pale); border: 1px solid #fca5a5; color: var(--red); padding: 9px 13px; border-radius: 9px; font-size: 0.8rem; margin-bottom: 12px; text-align: center; }
+        .error-banner.show { display: block; }
+        .success-banner { display:none; background: var(--mint-pale); border: 1px solid var(--mint); color: var(--forest); padding: 9px 13px; border-radius: 9px; font-size: 0.82rem; margin-bottom: 12px; text-align: center; font-weight: 500; }
+        .success-banner.show { display: block; }
+
+        .btn-submit {
+          width: 100%; background: var(--forest); color: #fff; border: none;
+          padding: 14px; border-radius: 13px; font-family: 'Jost', sans-serif;
+          font-size: 0.95rem; font-weight: 600; cursor: pointer;
+          box-shadow: 0 5px 18px rgba(27,58,45,0.26);
+          transition: background 0.2s, transform 0.15s;
+          display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px;
+        }
+        .btn-submit:hover { background: var(--moss); transform: translateY(-1px); }
+        .btn-clear-form {
+          width: 100%; background: transparent; color: var(--muted);
+          border: 1.5px solid var(--border); padding: 11px; border-radius: 11px;
+          font-family: 'Jost', sans-serif; font-size: 0.86rem; font-weight: 500; cursor: pointer;
+          transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+        .btn-clear-form:hover { border-color: var(--red); color: var(--red); background: var(--red-pale); }
+
+        /* ══ READ PANEL ══ */
+        .read-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .read-header h2 { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--forest); }
+        .read-search {
+          display: flex; align-items: center; gap: 8px;
+          background: var(--paper); border: 1.5px solid var(--border);
+          border-radius: 10px; padding: 8px 14px; transition: border-color 0.2s;
+        }
+        .read-search:focus-within { border-color: var(--sage); }
+        .read-search input { background: none; border: none; outline: none; font-family: 'Jost', sans-serif; font-size: 0.84rem; color: var(--text); width: 200px; }
+        .read-search input::placeholder { color: #b0b8aa; }
+
+        .plant-table-wrap { background: var(--paper); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: var(--mint-pale); }
+        th { padding: 13px 16px; text-align: left; font-size: 0.73rem; font-weight: 700; color: var(--forest); letter-spacing: 0.5px; text-transform: uppercase; }
+        td { padding: 13px 16px; font-size: 0.85rem; color: var(--text); border-top: 1px solid var(--border); vertical-align: middle; }
+        tbody tr:hover td { background: #f8fdf9; }
+        .td-thumb { width: 48px; height: 48px; border-radius: 10px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; }
+        .td-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .td-tag { background: var(--mint-pale); color: var(--moss); font-size: 0.7rem; font-weight: 600; padding: 3px 9px; border-radius: 50px; display: inline-block; }
+        .td-actions { display: flex; gap: 8px; }
+        .btn-edit-row {
+          padding: 6px 13px; border-radius: 8px; border: 1.5px solid var(--border);
+          background: none; color: var(--forest); font-family: 'Jost', sans-serif;
+          font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: background 0.2s, border-color 0.2s;
+        }
+        .btn-edit-row:hover { background: var(--mint-pale); border-color: var(--sage); }
+        .btn-del-row {
+          padding: 6px 13px; border-radius: 8px; border: 1.5px solid #fca5a5;
+          background: none; color: var(--red); font-family: 'Jost', sans-serif;
+          font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
+        }
+        .btn-del-row:hover { background: var(--red-pale); }
+
+        .empty-table { padding: 52px; text-align: center; color: var(--muted); }
+        .empty-table .e-icon { font-size: 2.8rem; margin-bottom: 10px; opacity: 0.4; }
+        .empty-table strong { font-size: 1rem; color: var(--forest); display: block; }
+        .empty-table p { font-size: 0.82rem; margin-top: 5px; }
+
+        /* ══ MODALS ══ */
+        .modal-backdrop {
+          display: none; position: fixed; inset: 0;
+          background: rgba(27,58,45,0.4); backdrop-filter: blur(5px);
+          z-index: 200; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal {
+          background: var(--paper); border-radius: 24px; padding: 36px; width: 100%; max-width: 460px;
+          box-shadow: 0 24px 60px rgba(27,58,45,0.18);
+          animation: popIn 0.3s ease both; position: relative;
+        }
+        @keyframes popIn { from { opacity:0; transform:scale(0.93) translateY(16px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        .modal-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--forest); margin-bottom: 22px; }
+        .modal-close { position: absolute; top: 18px; right: 20px; background: none; border: none; cursor: pointer; font-size: 20px; color: var(--muted); }
+        .modal-close:hover { color: var(--forest); }
+        .modal-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-modal-cancel {
+          flex: 1; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px;
+          background: none; color: var(--muted); font-family: 'Jost', sans-serif;
+          font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: background 0.2s;
+        }
+        .btn-modal-cancel:hover { background: var(--mint-pale); border-color: var(--sage); }
+        .btn-modal-save {
+          flex: 2; padding: 12px; background: var(--forest); color: #fff; border: none;
+          border-radius: 10px; font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 600;
+          cursor: pointer; box-shadow: 0 4px 14px rgba(27,58,45,0.22); transition: background 0.2s;
+        }
+        .btn-modal-save:hover { background: var(--moss); }
+
+        /* Delete modal */
+        .del-modal { max-width: 360px; text-align: center; }
+        .del-icon { font-size: 2.6rem; margin-bottom: 12px; }
+        .del-modal .modal-title { font-size: 1.15rem; }
+        .del-modal p { font-size: 0.84rem; color: var(--muted); margin-bottom: 22px; line-height: 1.6; }
+        .btn-del-confirm {
+          flex: 2; padding: 12px; background: var(--red); color: #fff; border: none;
+          border-radius: 10px; font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 600;
+          cursor: pointer; transition: background 0.2s;
+        }
+        .btn-del-confirm:hover { background: #b91c1c; }
+
+        /* ══ TOAST ══ */
+        .toast {
+          position: fixed; bottom: 28px; right: 28px;
+          background: var(--forest); color: #fff; padding: 12px 20px; border-radius: 12px;
+          font-size: 0.85rem; font-weight: 500; box-shadow: 0 8px 28px rgba(27,58,45,0.28);
+          z-index: 500; display: none; align-items: center; gap: 8px;
+        }
+        .toast.show { display: flex; animation: toastIn 0.3s ease; }
+        @keyframes toastIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+        @media (max-width: 960px) { .create-layout { grid-template-columns: 1fr; } .right-panel { position: static; } }
+        @media (max-width: 640px) {
+          .sidebar { width: 200px; } .main { margin-left: 200px; }
+          .content { padding: 16px; } .topbar { padding: 14px 16px; }
+          .crud-tabs { width: 100%; } .crud-tab { flex: 1; justify-content: center; font-size: 0.82rem; padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+    <a class="sidebar-logo" href="index.html">
+        <div class="logo-icon">🌿</div>
+        <span class="logo-text">GreenGallery</span>
+    </a>
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+        <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+        <a class="nav-item active" href="upload.html"><span class="nav-icon">📤</span> Upload</a>
+        <a class="nav-item" href="medicinal.html"><span class="nav-icon">🌿</span> Medicinal Benefits</a>
+        <div class="nav-section-label">Account</div>
+        <a class="nav-item" href="#"><span class="nav-icon">👤</span> Profile</a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-card">
+            <div class="user-avatar">JD</div>
+            <div class="user-info">
+                <div class="user-name">Jane Doe</div>
+                <div class="user-role">ADMIN</div>
+            </div>
+            <button class="logout-btn" onclick="window.location.href='login.html'">⏻</button>
+        </div>
+    </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+    <div class="topbar">
+        <div class="topbar-left">
+            <h1>📤 Manage Plants</h1>
+            <p>Upload, view, edit and delete your plant images</p>
+        </div>
+        <a class="btn-back-dash" href="dashboard.html">← Back to Dashboard</a>
+    </div>
+
+    <div class="content">
+
+        <!-- CRUD TABS -->
+        <div class="crud-tabs">
+            <button class="crud-tab active" onclick="switchTab('create',this)">➕ Upload</button>
+            <button class="crud-tab" onclick="switchTab('read',this)">📋 View All</button>
+        </div>
+
+        <!-- ════ CREATE PANEL ════ -->
+        <div class="panel active" id="panel-create">
+            <div class="create-layout">
+
+                <!-- Left: Drop Zone + Preview -->
+                <div class="left-panel">
+                    <div class="drop-zone" id="dropZone"
+                         ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDrop(event)">
+                        <input type="file" id="fileInput" accept="image/*" onchange="onFileChosen(event)" />
+                        <div class="drop-illustration">📸</div>
+                        <div class="drop-title">Drop your plant photo here</div>
+                        <div class="drop-sub">Drag & drop or <strong>click to browse</strong></div>
+                        <div class="drop-formats">
+                            <span class="fmt-tag">JPG</span>
+                            <span class="fmt-tag">PNG</span>
+                            <span class="fmt-tag">WEBP</span>
+                            <span class="fmt-tag">Max 10MB</span>
+                        </div>
+                    </div>
+                    <div class="preview-area" id="previewArea">
+                        <img class="preview-img" id="previewImg" src="" alt="Preview" />
+                        <div class="preview-overlay"></div>
+                        <div class="preview-bottom">
+                            <div>
+                                <div class="preview-filename" id="previewFilename"></div>
+                                <div class="preview-size" id="previewSize"></div>
+                            </div>
+                            <label class="btn-change">Change Photo
+                                <input type="file" accept="image/*" onchange="onFileChosen(event)" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Form -->
+                <div class="right-panel">
+                    <div class="form-title">Plant Details</div>
+                    <div class="form-sub">Fill in the information and upload</div>
+
+                    <div class="form-group">
+                        <label>Plant Name <span class="required">*</span></label>
+                        <input type="text" id="c-name" placeholder="e.g. Monstera Deliciosa" maxlength="60"
+                               oninput="updateChar('c-name','c-nc',60)" />
+                        <div class="char-count"><span id="c-nc">0</span>/60</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Category <span class="required">*</span></label>
+                        <div class="cat-grid">
+                            <label class="cat-option selected" id="cc-Tropical">
+                                <input type="radio" name="c-cat" value="Tropical" checked onchange="selectCat(this,'cc')"/>
+                                🌴 Tropical
+                            </label>
+                            <label class="cat-option" id="cc-Flowering">
+                                <input type="radio" name="c-cat" value="Flowering" onchange="selectCat(this,'cc')"/>
+                                🌸 Flowering
+                            </label>
+                            <label class="cat-option" id="cc-Succulent">
+                                <input type="radio" name="c-cat" value="Succulent" onchange="selectCat(this,'cc')"/>
+                                🌵 Succulent
+                            </label>
+                            <label class="cat-option" id="cc-Other">
+                                <input type="radio" name="c-cat" value="Other" onchange="selectCat(this,'cc')"/>
+                                🍃 Other
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Scientific Name <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+                        <input type="text" id="c-sci" placeholder="e.g. Monstera deliciosa" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notes <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+                        <textarea id="c-notes" rows="3" maxlength="200"
+                                  placeholder="Care tips, location..."
+                                  oninput="updateChar('c-notes','c-ntc',200)"></textarea>
+                        <div class="char-count"><span id="c-ntc">0</span>/200</div>
+                    </div>
+
+                    <div class="form-divider"></div>
+                    <div class="error-banner" id="c-err">⚠️ Please add a photo and enter the plant name.</div>
+                    <div class="success-banner" id="c-suc">🌿 Plant uploaded successfully!</div>
+
+                    <button class="btn-submit" onclick="createPlant()">📤 Upload Plant</button>
+                    <button class="btn-clear-form" onclick="clearCreate()">Clear Form</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════ READ PANEL ════ -->
+        <div class="panel" id="panel-read">
+            <div class="read-header">
+                <h2 id="readTitle">All Plants</h2>
+                <div class="read-search">
+                    <span>🔍</span>
+                    <input type="text" placeholder="Search by name or category..." oninput="renderTable(this.value)" />
+                </div>
+            </div>
+            <div class="plant-table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Plant Name</th>
+                        <th>Category</th>
+                        <th>Scientific Name</th>
+                        <th>Date Added</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="plantTbody"></tbody>
+                </table>
+                <div class="empty-table" id="emptyTable">
+                    <div class="e-icon">🌱</div>
+                    <strong>No plants yet</strong>
+                    <p>Upload your first plant using the Upload tab!</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ══ EDIT MODAL ══ -->
+<div class="modal-backdrop" id="editModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+        <h2 class="modal-title">✏️ Edit Plant</h2>
+        <input type="hidden" id="e-id" />
+        <div class="form-group">
+            <label>Plant Name <span class="required">*</span></label>
+            <input type="text" id="e-name" placeholder="Plant name" />
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <div class="cat-grid">
+                <label class="cat-option" id="ec-Tropical"><input type="radio" name="e-cat" value="Tropical" onchange="selectCat(this,'ec')"/> 🌴 Tropical</label>
+                <label class="cat-option" id="ec-Flowering"><input type="radio" name="e-cat" value="Flowering" onchange="selectCat(this,'ec')"/> 🌸 Flowering</label>
+                <label class="cat-option" id="ec-Succulent"><input type="radio" name="e-cat" value="Succulent" onchange="selectCat(this,'ec')"/> 🌵 Succulent</label>
+                <label class="cat-option" id="ec-Other"><input type="radio" name="e-cat" value="Other" onchange="selectCat(this,'ec')"/> 🍃 Other</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Scientific Name</label>
+            <input type="text" id="e-sci" placeholder="Scientific name" />
+        </div>
+        <div class="form-group">
+            <label>Notes</label>
+            <textarea id="e-notes" rows="3"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" onclick="closeModal('editModal')">Cancel</button>
+            <button class="btn-modal-save" onclick="saveEdit()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ DELETE MODAL ══ -->
+<div class="modal-backdrop" id="deleteModal">
+    <div class="modal del-modal">
+        <div class="del-icon">🗑️</div>
+        <h2 class="modal-title">Delete Plant?</h2>
+        <p>This will permanently remove <strong id="d-plantName"></strong> from your collection. This cannot be undone.</p>
+        <input type="hidden" id="d-id" />
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" onclick="closeModal('deleteModal')">Cancel</button>
+            <button class="btn-del-confirm" onclick="confirmDelete()">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+
+<script>
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    const page = window.location.pathname.split("/").pop();
+
+    if(!currentUser ||
+       (currentUser.role === "USER" && !["dashboard.html","medicinal.html"].includes(page))) {
+        alert("Access denied");
+        window.location.href = "dashboard.html";
+    }
+        let plants = [];
+     let currentUserId = sessionStorage.getItem("userId") || 1;
+
+
+     // ─────────────────────────────
+     // SWITCH TAB
+     // ─────────────────────────────
+     function switchTab(tab,btn){
+
+         document.querySelectorAll(".panel").forEach(p=>{
+             p.classList.remove("active");
+         });
+
+         document.querySelectorAll(".crud-tab").forEach(t=>{
+             t.classList.remove("active");
+         });
+
+         document.getElementById("panel-"+tab).classList.add("active");
+
+         if(btn) btn.classList.add("active");
+
+     }
+
+
+     // ─────────────────────────────
+     // CATEGORY SELECT
+     // ─────────────────────────────
+     function selectCat(el,prefix){
+
+         document.querySelectorAll(`#${prefix}-Tropical,
+         #${prefix}-Flowering,
+         #${prefix}-Succulent,
+         #${prefix}-Other`).forEach(c=>{
+             c.classList.remove("selected");
+         });
+
+         el.parentElement.classList.add("selected");
+
+     }
+
+
+     // ─────────────────────────────
+     // IMAGE PREVIEW
+     // ─────────────────────────────
+     function onFileChosen(e){
+
+         const file = e.target.files[0];
+         if(!file) return;
+
+         const reader = new FileReader();
+
+         reader.onload = function(ev){
+
+             document.getElementById("previewImg").src = ev.target.result;
+
+             document.getElementById("previewFilename").textContent = file.name;
+
+             document.getElementById("previewSize").textContent =
+             (file.size/1024).toFixed(1)+" KB";
+
+             document.getElementById("dropZone").style.display="none";
+             document.getElementById("previewArea").classList.add("show");
+
+         };
+
+         reader.readAsDataURL(file);
+
+     }
+
+
+     // ─────────────────────────────
+     // LOAD PLANTS
+     // ─────────────────────────────
+     async function loadPlants(){
+
+         try{
+
+             const res = await fetch(`http://localhost:8080/api/plants/user/${currentUserId}`);
+
+             plants = await res.json();
+
+             console.log("Plants:",plants);
+
+             renderTable();
+
+         }
+         catch(err){
+             console.error(err);
+         }
+
+     }
+
+
+     // ─────────────────────────────
+     // RENDER TABLE
+     // ─────────────────────────────
+     function renderTable(query=""){
+
+         const tbody = document.getElementById("plantTbody");
+         const empty = document.getElementById("emptyTable");
+
+         if(!tbody) return;
+
+         const q=query.toLowerCase();
+
+         const filtered = plants.filter(p=>
+             p.name.toLowerCase().includes(q) ||
+             (p.category||"").toLowerCase().includes(q)
+         );
+
+         tbody.innerHTML="";
+
+         if(filtered.length===0){
+
+             empty.style.display="block";
+             return;
+
+         }
+
+         empty.style.display="none";
+
+         filtered.forEach(p=>{
+
+             const tr=document.createElement("tr");
+
+             tr.innerHTML=`
+
+             <td>
+             <div class="td-thumb">
+             <img src="http://localhost:8080/${p.imagePath}">
+             </div>
+             </td>
+
+             <td>${p.name}</td>
+
+             <td><span class="td-tag">${p.category}</span></td>
+
+             <td>${p.scientificName || "-"}</td>
+
+             <td>${p.uploadDate || "-"}</td>
+
+             <td>
+             <div class="td-actions">
+             <button class="btn-del-row" onclick="openDelete(${p.id},'${p.name}')">Delete</button>
+             </div>
+             </td>
+
+             `;
+
+             tbody.appendChild(tr);
+
+         });
+
+     }
+
+
+     // ─────────────────────────────
+     // UPLOAD PLANT
+     // ─────────────────────────────
+     async function createPlant(){
+
+         const name=document.getElementById("c-name").value;
+         const category=document.querySelector('input[name="c-cat"]:checked')?.value;
+         const scientific=document.getElementById("c-sci").value;
+         const notes=document.getElementById("c-notes").value;
+         const image=document.getElementById("fileInput").files[0];
+
+         if(!name || !image){
+
+             document.getElementById("c-err").classList.add("show");
+             return;
+
+         }
+
+         const formData=new FormData();
+
+         formData.append("name",name);
+         formData.append("category",category);
+         formData.append("scientificName",scientific);
+         formData.append("notes",notes);
+         formData.append("userId",currentUserId);
+         formData.append("image",image);
+
+         try{
+
+             const res=await fetch("http://localhost:8080/api/plants/upload",{
+                 method:"POST",
+                 body:formData
+             });
+
+             if(!res.ok) throw new Error();
+
+             document.getElementById("c-suc").classList.add("show");
+
+             clearCreate();
+
+             loadPlants();
+
+         }
+         catch(err){
+             console.error(err);
+         }
+
+     }
+
+
+     // ─────────────────────────────
+     // DELETE
+     // ─────────────────────────────
+     function openDelete(id,name){
+
+         document.getElementById("deleteModal").classList.add("open");
+
+         document.getElementById("d-id").value=id;
+
+         document.getElementById("d-plantName").innerText=name;
+
+     }
+
+     async function confirmDelete(){
+
+         const id=document.getElementById("d-id").value;
+
+         await fetch(`http://localhost:8080/api/plants/${id}`,{
+             method:"DELETE"
+         });
+
+         closeModal("deleteModal");
+
+         loadPlants();
+
+     }
+
+
+     // ─────────────────────────────
+     // CLOSE MODAL
+     // ─────────────────────────────
+     function closeModal(id){
+
+         document.getElementById(id).classList.remove("open");
+
+     }
+
+
+     // ─────────────────────────────
+     // CLEAR FORM
+     // ─────────────────────────────
+     function clearCreate(){
+
+         document.getElementById("c-name").value="";
+         document.getElementById("c-sci").value="";
+         document.getElementById("c-notes").value="";
+         document.getElementById("fileInput").value="";
+
+         document.getElementById("previewArea").classList.remove("show");
+         document.getElementById("dropZone").style.display="flex";
+
+     }
+
+
+    // ─────────────────────────────
+// PAGE LOAD
+// ─────────────────────────────
+window.addEventListener("DOMContentLoaded", () => {
+
+    const userId = sessionStorage.getItem("userId");
+
+    console.log("Logged user:", userId);
+
+    loadPlants(userId);
+
+
+    // ── SHOW LOGGED USER NAME ──
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (user) {
+
+        const nameElement = document.querySelector(".user-name");
+        const avatarElement = document.querySelector(".user-avatar");
+
+        const displayName = user.username || user.email || "User";
+
+        if (nameElement) {
+            nameElement.textContent = displayName;
+        }
+
+        if (avatarElement) {
+            avatarElement.textContent = displayName.charAt(0).toUpperCase();
+        }
+
+    }
+
+});
+
+</script>
+</body>
+</html>

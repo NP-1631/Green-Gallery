@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>GreenGallery – Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --forest:    #1b3a2d;
+          --moss:      #2e5e44;
+          --sage:      #5a8f6e;
+          --mint:      #a8d5b5;
+          --mint-pale: #e4f4ea;
+          --cream:     #f7f4ef;
+          --paper:     #fdfcf9;
+          --border:    #d6e4d6;
+          --text:      #1a2418;
+          --muted:     #6b7c68;
+          --sidebar-w: 240px;
+          --error-bg:  #fef2f2;
+          --error-bd:  #fca5a5;
+          --error-tx:  #b91c1c;
+          --success-bg:#f0fdf4;
+          --success-bd:#86efac;
+          --success-tx:#166534;
+        }
+
+        html, body { height: 100%; font-family: 'Jost', sans-serif; color: var(--text); }
+
+        body {
+          display: flex;
+          background: var(--cream);
+          min-height: 100vh;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+          width: var(--sidebar-w);
+          background: var(--forest);
+          display: flex; flex-direction: column; flex-shrink: 0;
+          position: fixed; top: 0; left: 0; bottom: 0;
+          z-index: 100;
+        }
+        .sidebar-logo {
+          display: flex; align-items: center; gap: 10px;
+          padding: 28px 22px 24px;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+          text-decoration: none;
+        }
+        .logo-icon {
+          width: 34px; height: 34px;
+          background: rgba(255,255,255,0.12);
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 17px;
+        }
+        .logo-text {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.15rem; color: #fff; font-weight: 700;
+        }
+        .sidebar-nav {
+          flex: 1; padding: 20px 12px;
+          display: flex; flex-direction: column; gap: 4px;
+        }
+        .nav-item {
+          display: flex; align-items: center; gap: 12px;
+          padding: 11px 14px; border-radius: 12px;
+          color: rgba(255,255,255,0.65);
+          font-size: 0.88rem; font-weight: 500;
+          cursor: pointer; transition: background 0.2s, color 0.2s;
+          text-decoration: none; border: none; background: none;
+          width: 100%; text-align: left; font-family: 'Jost', sans-serif;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .nav-item.active { background: rgba(255,255,255,0.14); color: #fff; }
+        .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+        .nav-item-medicinal {
+          display: flex; align-items: center; gap: 12px;
+          padding: 11px 14px; border-radius: 12px;
+          font-size: 0.88rem; font-weight: 500;
+          cursor: pointer; text-decoration: none;
+          border: none;
+          width: 100%; text-align: left; font-family: 'Jost', sans-serif;
+          background: none;
+          color: rgba(255,255,255,0.65);
+          transition: background 0.2s, color 0.2s;
+        }
+        .nav-item-medicinal:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .nav-section-label {
+          font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase;
+          color: rgba(255,255,255,0.3); padding: 16px 14px 6px; font-weight: 600;
+        }
+        .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+        .user-card {
+          display: flex; align-items: center; gap: 10px;
+          padding: 10px 12px; border-radius: 12px;
+          background: rgba(255,255,255,0.07);
+        }
+        .user-avatar {
+          width: 34px; height: 34px;
+          background: linear-gradient(135deg, var(--sage), var(--mint));
+          border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 13px; font-weight: 600; color: var(--forest); flex-shrink: 0;
+        }
+        .user-info { flex: 1; min-width: 0; }
+        .user-name { font-size: 0.82rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role-label { font-size: 0.7rem; color: rgba(255,255,255,0.45); }
+        .logout-btn {
+          background: none; border: none; cursor: pointer;
+          color: rgba(255,255,255,0.4); font-size: 14px;
+          transition: color 0.2s; padding: 4px;
+        }
+        .logout-btn:hover { color: #fff; }
+
+        /* ── MAIN ── */
+        .main {
+          margin-left: var(--sidebar-w);
+          flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+          background: var(--paper);
+          border-bottom: 1px solid var(--border);
+          padding: 16px 32px;
+          display: flex; align-items: center; justify-content: space-between;
+          position: sticky; top: 0; z-index: 50;
+        }
+        .topbar-left h1 {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.35rem; color: var(--forest); font-weight: 700;
+        }
+        .topbar-left p { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+        /* ── CONTENT ── */
+        .content {
+          flex: 1; padding: 32px;
+          display: flex; flex-direction: column;
+          gap: 24px;
+          animation: fadeUp 0.5s ease both;
+        }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── PROFILE HERO ── */
+        .profile-hero {
+          background: linear-gradient(135deg, var(--forest) 0%, var(--moss) 60%, var(--sage) 100%);
+          border-radius: 24px;
+          padding: 36px 40px;
+          display: flex; align-items: center; gap: 28px;
+          position: relative; overflow: hidden;
+        }
+        .profile-hero::before {
+          content: '🌿';
+          position: absolute; right: 32px; top: 16px;
+          font-size: 6rem; opacity: 0.1; transform: rotate(15deg);
+        }
+        .hero-avatar {
+          width: 80px; height: 80px;
+          background: linear-gradient(135deg, var(--sage), var(--mint));
+          border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 2rem; font-weight: 700; color: var(--forest);
+          flex-shrink: 0;
+          border: 3px solid rgba(255,255,255,0.3);
+          box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        .hero-info { flex: 1; }
+        .hero-name {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.6rem; color: #fff; font-weight: 700; margin-bottom: 4px;
+        }
+        .hero-username { font-size: 0.88rem; color: rgba(255,255,255,0.65); margin-bottom: 10px; }
+        .hero-role-badge {
+          display: inline-flex; align-items: center; gap: 6px;
+          background: rgba(255,255,255,0.15);
+          border: 1px solid rgba(255,255,255,0.25);
+          color: #fff; padding: 5px 14px; border-radius: 50px;
+          font-size: 0.78rem; font-weight: 600;
+          backdrop-filter: blur(6px);
+        }
+
+        /* ── FORM CARD ── */
+        .form-card {
+          background: var(--paper);
+          border: 1px solid var(--border);
+          border-radius: 20px;
+          padding: 32px 36px;
+          box-shadow: 0 4px 20px rgba(27,58,45,0.06);
+        }
+        .form-card-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.1rem; color: var(--forest);
+          margin-bottom: 24px;
+          display: flex; align-items: center; gap: 10px;
+        }
+        .form-card-title::after {
+          content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+
+        /* FORM GRID */
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 18px;
+          margin-bottom: 18px;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .form-group label {
+          font-size: 0.82rem; font-weight: 600;
+          color: var(--forest); letter-spacing: 0.3px;
+        }
+        .input-wrap { position: relative; }
+        .form-group input {
+          width: 100%;
+          padding: 12px 16px;
+          border: 1.5px solid var(--border);
+          border-radius: 12px;
+          font-family: 'Jost', sans-serif;
+          font-size: 0.93rem; color: var(--text);
+          background: var(--cream); outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus {
+          border-color: var(--sage);
+          box-shadow: 0 0 0 3px rgba(90,143,110,0.12);
+          background: #fff;
+        }
+        .form-group input::placeholder { color: #b0b8aa; }
+        .form-group input.invalid {
+          border-color: var(--error-bd);
+          box-shadow: 0 0 0 3px rgba(252,165,165,0.2);
+        }
+        .form-group input.valid { border-color: var(--success-bd); }
+
+        /* Readonly / disabled style */
+        .form-group input[readonly] {
+          background: var(--mint-pale);
+          color: var(--muted);
+          cursor: not-allowed;
+          border-color: var(--border);
+        }
+
+        .field-hint {
+          font-size: 0.74rem; color: var(--muted); margin-top: 2px; display: none;
+        }
+        .field-hint.show { display: block; color: var(--error-tx); }
+
+        /* toggle pw */
+        .toggle-pw {
+          position: absolute; right: 14px; top: 50%;
+          transform: translateY(-50%);
+          background: none; border: none;
+          cursor: pointer; font-size: 15px;
+          color: var(--muted); padding: 0; line-height: 1;
+        }
+
+        /* pw strength */
+        .pw-strength { margin-top: 6px; }
+        .strength-bar { height: 4px; border-radius: 4px; background: var(--border); overflow: hidden; margin-bottom: 4px; }
+        .strength-fill { height: 100%; border-radius: 4px; width: 0%; transition: width 0.3s, background 0.3s; }
+        .strength-label { font-size: 0.72rem; color: var(--muted); }
+
+        /* Role select */
+        .form-group select {
+          width: 100%; padding: 12px 16px;
+          border: 1.5px solid var(--border); border-radius: 12px;
+          font-family: 'Jost', sans-serif; font-size: 0.93rem;
+          color: var(--text); background: var(--cream); outline: none;
+          cursor: pointer; appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7c68' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+          background-repeat: no-repeat; background-position: right 14px center;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group select:focus {
+          border-color: var(--sage);
+          box-shadow: 0 0 0 3px rgba(90,143,110,0.12);
+          background-color: #fff;
+        }
+
+        /* Banners */
+        .banner {
+          display: none; padding: 12px 16px;
+          border-radius: 12px; font-size: 0.84rem;
+          margin-bottom: 16px; text-align: center;
+        }
+        .banner.error   { background: var(--error-bg); border: 1px solid var(--error-bd); color: var(--error-tx); }
+        .banner.success { background: var(--success-bg); border: 1px solid var(--success-bd); color: var(--success-tx); }
+        .banner.show    { display: block; }
+
+        /* Action buttons */
+        .form-actions {
+          display: flex; gap: 12px; margin-top: 8px;
+        }
+        .btn-save {
+          flex: 1; background: var(--forest); color: #fff;
+          border: none; padding: 14px;
+          border-radius: 12px; font-family: 'Jost', sans-serif;
+          font-size: 0.95rem; font-weight: 600;
+          cursor: pointer; letter-spacing: 0.3px;
+          box-shadow: 0 6px 18px rgba(27,58,45,0.25);
+          transition: background 0.2s, transform 0.15s;
+        }
+        .btn-save:hover { background: var(--moss); transform: translateY(-1px); }
+        .btn-reset {
+          padding: 14px 24px;
+          background: none; color: var(--muted);
+          border: 1.5px solid var(--border);
+          border-radius: 12px; font-family: 'Jost', sans-serif;
+          font-size: 0.88rem; font-weight: 500;
+          cursor: pointer;
+          transition: border-color 0.2s, background 0.2s;
+        }
+        .btn-reset:hover { border-color: var(--sage); background: var(--mint-pale); }
+
+        /* Toast */
+        .toast {
+          position: fixed; bottom: 28px; right: 28px;
+          background: var(--forest); color: #fff;
+          padding: 12px 20px; border-radius: 12px;
+          font-size: 0.85rem; font-weight: 500;
+          box-shadow: 0 8px 28px rgba(27,58,45,0.28);
+          z-index: 500; display: none;
+          align-items: center; gap: 8px;
+        }
+        .toast.show { display: flex; animation: toastIn 0.3s ease; }
+        @keyframes toastIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+        @media (max-width: 768px) {
+          .sidebar { width: 200px; }
+          .main { margin-left: 200px; }
+          .content { padding: 16px; }
+          .form-row { grid-template-columns: 1fr; gap: 0; }
+          .form-card { padding: 24px 20px; }
+          .profile-hero { flex-direction: column; text-align: center; padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+    <a class="sidebar-logo" href="index.html">
+        <div class="logo-icon">🌿</div>
+        <span class="logo-text">GreenGallery</span>
+    </a>
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+        <a class="nav-item" id="dashboardLink">
+            <span class="nav-icon">🏠</span> Dashboard
+        </a>
+        <a class="nav-item-medicinal" href="medicinal.html"><span class="nav-icon">🌿</span> Medicinal Benefits</a>
+        <div class="nav-section-label">Account</div>
+        <a class="nav-item active" href="profile.html"><span class="nav-icon">👤</span> Profile</a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-card">
+            <div class="user-avatar" id="sidebarAvatar">?</div>
+            <div class="user-info">
+                <div class="user-name" id="sidebarName">Loading...</div>
+                <div class="user-role-label" id="sidebarRole">—</div>
+            </div>
+            <button class="logout-btn" onclick="logout()">⏻</button>
+        </div>
+    </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+    <div class="topbar">
+        <div class="topbar-left">
+            <h1>👤 My Profile</h1>
+            <p>View and update your account details</p>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- HERO -->
+        <div class="profile-hero">
+            <div class="hero-avatar" id="heroAvatar">?</div>
+            <div class="hero-info">
+                <div class="hero-name" id="heroName">—</div>
+                <div class="hero-username" id="heroUsername">@—</div>
+                <div class="hero-role-badge" id="heroRole">🌿 User</div>
+            </div>
+        </div>
+
+        <!-- PERSONAL DETAILS FORM -->
+        <div class="form-card">
+            <div class="form-card-title">📋 Personal Details</div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" placeholder="Jane" />
+                    <span class="field-hint" id="hintFirstName">First name is required.</span>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" placeholder="Doe" />
+                    <span class="field-hint" id="hintLastName">Last name is required.</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="plantlover123" />
+                <span class="field-hint" id="hintUsername">Username is required.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="you@example.com" />
+                <span class="field-hint" id="hintEmail">Please enter a valid email.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role">
+                    <option value="USER">👤 User</option>
+                    <option value="ADMIN">🛡️ Admin</option>
+                </select>
+            </div>
+
+            <div class="banner error"   id="detailsError"></div>
+            <div class="banner success" id="detailsSuccess"></div>
+
+            <div class="form-actions">
+                <button class="btn-reset" onclick="resetDetails()">Reset</button>
+                <button class="btn-save" onclick="saveDetails()">💾 Save Changes</button>
+            </div>
+        </div>
+
+        <!-- CHANGE PASSWORD FORM -->
+        <div class="form-card">
+
+            <input type="text" style="display:none">
+            <input type="password" style="display:none">
+
+            <div class="form-card-title">🔒 Change Password</div>
+
+            <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <div class="input-wrap">
+                    <input type="password" id="currentPassword" placeholder="Enter current password" autocomplete="off"/>
+                    <button class="toggle-pw" onclick="togglePw('currentPassword','togglePw0')" id="togglePw0">👁️</button>
+                </div>
+                <span class="field-hint" id="hintCurrentPw">Current password is required.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <div class="input-wrap">
+                    <input type="password" id="newPassword" placeholder="Create new password" oninput="checkStrength()" />
+                    <button class="toggle-pw" onclick="togglePw('newPassword','togglePw1')" id="togglePw1">👁️</button>
+                </div>
+                <div class="pw-strength">
+                    <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                    <span class="strength-label" id="strengthLabel">Enter a password</span>
+                </div>
+                <span class="field-hint" id="hintNewPw">Password must be at least 6 characters.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <div class="input-wrap">
+                    <input type="password" id="confirmPassword" placeholder="Repeat new password" />
+                    <button class="toggle-pw" onclick="togglePw('confirmPassword','togglePw2')" id="togglePw2">👁️</button>
+                </div>
+                <span class="field-hint" id="hintConfirmPw">Passwords do not match.</span>
+            </div>
+
+            <div class="banner error"   id="pwError"></div>
+            <div class="banner success" id="pwSuccess"></div>
+
+            <div class="form-actions">
+                <button class="btn-reset" onclick="resetPassword()">Reset</button>
+                <button class="btn-save" onclick="savePassword()">🔒 Update Password</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
+
+<script>
+
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+if(!user){
+    alert("Please login first");
+    window.location.href = "login.html";
+}
+
+const role = sessionStorage.getItem("userRole");
+
+if(role !== "ADMIN" && role !== "USER"){
+    alert("Access denied");
+    window.location.href = "login.html";
+}
+
+const dashLink = document.getElementById("dashboardLink");
+
+if(user.role === "ADMIN"){
+    dashLink.href = "dashboard.html";
+}else{
+    dashLink.href = "userdashboard.html";
+}
+
+function logout(){
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = "login.html";
+}
+
+    // ── Load user from storage ──
+    let currentUser = JSON.parse(localStorage.getItem("user")) || {};
+    const userId    = sessionStorage.getItem("userId");
+
+    function initProfile() {
+        const fn   = currentUser.firstName || "";
+        const ln   = currentUser.lastName  || "";
+        const un   = currentUser.username  || currentUser.email || "";
+        const em   = currentUser.email     || "";
+        const role = (currentUser.role     || "USER").toUpperCase();
+
+        // Hero
+        const fullName  = (fn + " " + ln).trim() || un || "User";
+        const initials  = fullName.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2);
+
+        document.getElementById("heroAvatar").textContent  = initials || "?";
+        document.getElementById("heroName").textContent    = fullName;
+        document.getElementById("heroUsername").textContent = "@" + (currentUser.username || em);
+        document.getElementById("heroRole").textContent    = role === "ADMIN" ? "🛡️ Admin" : "🌿 User";
+
+        // Sidebar
+        document.getElementById("sidebarAvatar").textContent = initials || "?";
+        document.getElementById("sidebarName").textContent   = fullName;
+        document.getElementById("sidebarRole").textContent   = role === "ADMIN" ? "Admin" : "Plant Enthusiast";
+
+        // Form fields
+        document.getElementById("firstName").value = fn;
+        document.getElementById("lastName").value  = ln;
+        document.getElementById("username").value  = currentUser.username || "";
+        document.getElementById("email").value     = em;
+        document.getElementById("role").value      = role;
+    }
+
+    // ── Toggle password visibility ──
+    function togglePw(inputId, btnId) {
+        const input = document.getElementById(inputId);
+        const btn   = document.getElementById(btnId);
+        input.type  = input.type === "password" ? "text" : "password";
+        btn.textContent = input.type === "password" ? "👁️" : "🙈";
+    }
+
+    // ── Password strength ──
+    function checkStrength() {
+        const pw    = document.getElementById("newPassword").value;
+        const fill  = document.getElementById("strengthFill");
+        const label = document.getElementById("strengthLabel");
+        let score   = 0;
+        if (pw.length >= 6)          score++;
+        if (pw.length >= 10)         score++;
+        if (/[A-Z]/.test(pw))        score++;
+        if (/[0-9]/.test(pw))        score++;
+        if (/[^A-Za-z0-9]/.test(pw)) score++;
+        const levels = [
+            { pct:"0%",   color:"transparent", text:"Enter a password" },
+            { pct:"25%",  color:"#ef4444",     text:"Weak" },
+            { pct:"50%",  color:"#f97316",     text:"Fair" },
+            { pct:"75%",  color:"#eab308",     text:"Good" },
+            { pct:"100%", color:"#22c55e",     text:"Strong 💪" },
+        ];
+        const lv = pw.length === 0 ? levels[0] : levels[Math.min(score, 4)];
+        fill.style.width      = lv.pct;
+        fill.style.background = lv.color;
+        label.textContent     = lv.text;
+    }
+
+    // ── Field validator ──
+    function validateField(id, hintId, condition) {
+        const input = document.getElementById(id);
+        const hint  = document.getElementById(hintId);
+        const ok    = condition(input.value);
+        input.classList.toggle("invalid", !ok);
+        input.classList.toggle("valid",    ok);
+        hint.classList.toggle("show",     !ok);
+        return ok;
+    }
+
+    // ── Toast ──
+    function showToast(msg) {
+        const t = document.getElementById("toast");
+        document.getElementById("toastMsg").textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 3000);
+    }
+
+    // ── Save Personal Details ──
+    function saveDetails() {
+        const errorBanner   = document.getElementById("detailsError");
+        const successBanner = document.getElementById("detailsSuccess");
+        errorBanner.classList.remove("show");
+        successBanner.classList.remove("show");
+
+        const v1 = validateField("firstName", "hintFirstName", v => v.trim() !== "");
+        const v2 = validateField("lastName",  "hintLastName",  v => v.trim() !== "");
+        const v3 = validateField("username",  "hintUsername",  v => v.trim() !== "");
+        const v4 = validateField("email",     "hintEmail",     v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+
+        if (!v1 || !v2 || !v3 || !v4) {
+            errorBanner.textContent = "⚠️ Please fix the errors above.";
+            errorBanner.classList.add("show");
+            return;
+        }
+
+        const updatedUser = {
+            ...currentUser,
+            firstName: document.getElementById("firstName").value.trim(),
+            lastName:  document.getElementById("lastName").value.trim(),
+            username:  document.getElementById("username").value.trim(),
+            email:     document.getElementById("email").value.trim(),
+            role:      document.getElementById("role").value,
+        };
+
+        // ── Spring Boot: PUT /api/users/{id} ──
+        fetch(`http://localhost:8080/api/users/${userId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedUser)
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Update failed");
+            return res.json();
+        })
+        .then(data => {
+            currentUser = data;
+            localStorage.setItem("user", JSON.stringify(data));
+            sessionStorage.setItem("userRole", data.role);
+            initProfile();
+            successBanner.textContent = "✅ Profile updated successfully!";
+            successBanner.classList.add("show");
+            showToast("Profile saved!");
+        })
+        .catch(() => {
+            errorBanner.textContent = "⚠️ Failed to update profile. Try again.";
+            errorBanner.classList.add("show");
+        });
+    }
+
+    // ── Reset Details ──
+    function resetDetails() {
+        initProfile();
+        document.getElementById("detailsError").classList.remove("show");
+        document.getElementById("detailsSuccess").classList.remove("show");
+        document.querySelectorAll("#firstName,#lastName,#username,#email")
+            .forEach(el => { el.classList.remove("invalid","valid"); });
+        document.querySelectorAll(".field-hint").forEach(h => h.classList.remove("show"));
+    }
+
+    // ── Save Password ──
+    function savePassword() {
+        const errorBanner   = document.getElementById("pwError");
+        const successBanner = document.getElementById("pwSuccess");
+        errorBanner.classList.remove("show");
+        successBanner.classList.remove("show");
+
+        const newPw = document.getElementById("newPassword").value;
+
+        const v1 = validateField("currentPassword", "hintCurrentPw",  v => v.trim() !== "");
+        const v2 = validateField("newPassword",      "hintNewPw",      v => v.length >= 6);
+        const v3 = validateField("confirmPassword",  "hintConfirmPw",  v => v === newPw && v !== "");
+
+        if (!v1 || !v2 || !v3) {
+            errorBanner.textContent = "⚠️ Please fix the password errors above.";
+            errorBanner.classList.add("show");
+            return;
+        }
+
+        // ── Spring Boot: PUT /api/users/{id}/change-password ──
+        fetch(`http://localhost:8080/api/auth/${userId}/change-password`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                currentPassword: document.getElementById("currentPassword").value,
+                newPassword:     newPw
+            })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Wrong current password");
+            return res.json();
+        })
+        .then(() => {
+            successBanner.textContent = "✅ Password updated successfully!";
+            successBanner.classList.add("show");
+            showToast("Password changed!");
+            resetPassword();
+        })
+        .catch(() => {
+            errorBanner.textContent = "⚠️ Current password is incorrect.";
+            errorBanner.classList.add("show");
+        });
+    }
+
+    // ── Reset Password fields ──
+    function resetPassword() {
+        ["currentPassword","newPassword","confirmPassword"].forEach(id => {
+            document.getElementById(id).value = "";
+            document.getElementById(id).classList.remove("invalid","valid");
+        });
+        document.getElementById("strengthFill").style.width = "0%";
+        document.getElementById("strengthLabel").textContent = "Enter a password";
+        ["togglePw0","togglePw1","togglePw2"].forEach(id => {
+            document.getElementById(id).textContent = "👁️";
+        });
+        ["currentPassword","newPassword","confirmPassword"].forEach(id => {
+            document.getElementById(id).type = "password";
+        });
+        document.getElementById("pwError").classList.remove("show");
+        document.getElementById("pwSuccess").classList.remove("show");
+    }
+
+    // ── Init ──
+    window.addEventListener("DOMContentLoaded", initProfile);
+</script>
+</body>
+</html>

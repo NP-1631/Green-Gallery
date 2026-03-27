@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>GreenGallery – Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+          --forest:#1b3a2d; --moss:#2e5e44; --sage:#5a8f6e; --mint:#a8d5b5;
+          --mint-pale:#e4f4ea; --cream:#f7f4ef; --paper:#fdfcf9; --border:#d6e4d6;
+          --text:#1a2418; --muted:#6b7c68; --sidebar-w:240px; --red:#dc2626; --red-pale:#fef2f2;
+        }
+        html,body{height:100%;font-family:'Jost',sans-serif;color:var(--text);}
+        body{display:flex;background:var(--cream);min-height:100vh;}
+        .sidebar{width:var(--sidebar-w);background:var(--forest);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:100;animation:slideIn 0.5s ease both;}
+        @keyframes slideIn{from{transform:translateX(-100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+        .sidebar-logo{display:flex;align-items:center;gap:10px;padding:28px 22px 24px;border-bottom:1px solid rgba(255,255,255,0.08);text-decoration:none;}
+        .logo-icon{width:34px;height:34px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+        .logo-text{font-family:'Playfair Display',serif;font-size:1.15rem;color:#fff;font-weight:700;}
+        .sidebar-nav{flex:1;padding:20px 12px;display:flex;flex-direction:column;gap:4px;}
+        .nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;color:rgba(255,255,255,0.65);font-size:0.88rem;font-weight:500;cursor:pointer;transition:background 0.2s,color 0.2s;text-decoration:none;border:none;background:none;width:100%;text-align:left;font-family:'Jost',sans-serif;}
+        .nav-item:hover{background:rgba(255,255,255,0.08);color:#fff;}
+        .nav-item.active{background:rgba(255,255,255,0.14);color:#fff;}
+        .nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+        .nav-item-medicinal{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;font-size:0.88rem;font-weight:500;cursor:pointer;text-decoration:none;border:none;width:100%;text-align:left;font-family:'Jost',sans-serif;background:none;color:rgba(255,255,255,0.65);transition:background 0.2s,color 0.2s;}
+        .nav-item-medicinal:hover{background:rgba(255,255,255,0.08);color:#fff;}
+        .nav-item-medicinal .nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+        .nav-section-label{font-size:0.68rem;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:16px 14px 6px;font-weight:600;}
+        .sidebar-footer{padding:16px 12px;border-top:1px solid rgba(255,255,255,0.08);}
+        .user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.07);}
+        .user-avatar{width:34px;height:34px;background:linear-gradient(135deg,var(--sage),var(--mint));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--forest);flex-shrink:0;}
+        .user-info{flex:1;min-width:0;}
+        .user-name{font-size:0.82rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .user-role{font-size:0.7rem;color:rgba(255,255,255,0.45);}
+        .logout-btn{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.4);font-size:14px;transition:color 0.2s;padding:4px;}
+        .logout-btn:hover{color:#fff;}
+        .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+        .topbar{background:var(--paper);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:50;animation:fadeDown 0.5s ease both;}
+        @keyframes fadeDown{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+        .topbar-left h1{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--forest);font-weight:700;}
+        .topbar-left p{font-size:0.8rem;color:var(--muted);margin-top:2px;}
+        .topbar-right{display:flex;align-items:center;gap:12px;}
+        .search-box{display:flex;align-items:center;gap:8px;background:var(--cream);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;transition:border-color 0.2s;}
+        .search-box:focus-within{border-color:var(--sage);}
+        .search-box input{background:none;border:none;outline:none;font-family:'Jost',sans-serif;font-size:0.85rem;color:var(--text);width:180px;}
+        .search-box input::placeholder{color:#b0b8aa;}
+        .content{flex:1;padding:28px 32px;animation:fadeUp 0.5s 0.1s ease both;}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+        .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+        .stat-card{background:var(--paper);border:1px solid var(--border);border-radius:16px;padding:20px 22px;display:flex;align-items:center;gap:14px;transition:box-shadow 0.2s,transform 0.2s;}
+        .stat-card:hover{box-shadow:0 6px 24px rgba(27,58,45,0.09);transform:translateY(-2px);}
+        .stat-emoji{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+        .stat-emoji.green{background:var(--mint-pale);} .stat-emoji.amber{background:#fef9ec;} .stat-emoji.blue{background:#eff6ff;} .stat-emoji.purple{background:#f5f3ff;}
+        .stat-num{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--forest);line-height:1;}
+        .stat-label{font-size:0.75rem;color:var(--muted);margin-top:3px;}
+        .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+        .section-title{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--forest);}
+        .filter-tabs{display:flex;gap:4px;background:var(--mint-pale);border-radius:10px;padding:4px;}
+        .filter-tab{padding:6px 14px;border-radius:7px;font-size:0.78rem;font-weight:500;cursor:pointer;border:none;background:none;color:var(--muted);font-family:'Jost',sans-serif;transition:background 0.2s,color 0.2s;}
+        .filter-tab.active{background:var(--forest);color:#fff;}
+        .plant-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;}
+        .plant-card{background:var(--paper);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:box-shadow 0.25s,transform 0.25s;animation:fadeUp 0.4s ease both;}
+        .plant-card:hover{box-shadow:0 10px 32px rgba(27,58,45,0.12);transform:translateY(-3px);}
+        .plant-img{height:160px;display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative;overflow:hidden;}
+        .plant-img .overlay{position:absolute;inset:0;background:rgba(27,58,45,0.55);display:flex;align-items:center;justify-content:center;gap:10px;opacity:0;transition:opacity 0.25s;}
+        .plant-card:hover .overlay{opacity:1;}
+        .overlay-btn{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:transform 0.15s;background:rgba(255,255,255,0.9);}
+        .overlay-btn:hover{transform:scale(1.1);}
+        .overlay-btn.delete{background:#fff0f0;}
+        .plant-info{padding:14px 16px;}
+        .plant-name{font-weight:600;font-size:0.9rem;color:var(--forest);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .plant-meta{display:flex;align-items:center;justify-content:space-between;}
+        .plant-tag{background:var(--mint-pale);color:var(--moss);font-size:0.7rem;font-weight:600;padding:3px 9px;border-radius:50px;}
+        .plant-date{font-size:0.7rem;color:var(--muted);}
+        .empty-state{display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;color:var(--muted);grid-column:1/-1;}
+        .empty-state.show{display:flex;}
+        .empty-state .empty-icon{font-size:3.5rem;margin-bottom:16px;opacity:0.5;}
+        .empty-state h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--forest);margin-bottom:8px;}
+        .empty-state p{font-size:0.85rem;max-width:280px;line-height:1.6;}
+        .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(27,58,45,0.4);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;animation:fadeBg 0.2s ease;}
+        .modal-backdrop.open{display:flex;}
+        @keyframes fadeBg{from{opacity:0;}to{opacity:1;}}
+        .modal{background:var(--paper);border-radius:24px;padding:36px;width:100%;max-width:440px;box-shadow:0 24px 60px rgba(27,58,45,0.18);animation:popIn 0.3s ease both;position:relative;}
+        @keyframes popIn{from{opacity:0;transform:scale(0.93) translateY(16px);}to{opacity:1;transform:scale(1) translateY(0);}}
+        .modal-title{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--forest);margin-bottom:24px;}
+        .modal-close{position:absolute;top:18px;right:20px;background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted);line-height:1;padding:4px;}
+        .modal-close:hover{color:var(--forest);}
+        .mform-group{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+        .mform-group label{font-size:0.82rem;font-weight:600;color:var(--forest);}
+        .mform-group input,.mform-group select,.mform-group textarea{padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Jost',sans-serif;font-size:0.88rem;color:var(--text);background:var(--cream);outline:none;transition:border-color 0.2s,box-shadow 0.2s;resize:none;}
+        .mform-group input:focus,.mform-group select:focus,.mform-group textarea:focus{border-color:var(--sage);box-shadow:0 0 0 3px rgba(90,143,110,0.12);background:#fff;}
+        .modal-actions{display:flex;gap:10px;margin-top:8px;}
+        .btn-cancel{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:10px;background:none;color:var(--muted);font-family:'Jost',sans-serif;font-size:0.88rem;font-weight:500;cursor:pointer;transition:border-color 0.2s,background 0.2s;}
+        .btn-cancel:hover{border-color:var(--sage);background:var(--mint-pale);}
+        .btn-save{flex:2;padding:12px;background:var(--forest);color:#fff;border:none;border-radius:10px;font-family:'Jost',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;transition:background 0.2s,transform 0.15s;box-shadow:0 4px 14px rgba(27,58,45,0.22);}
+        .btn-save:hover{background:var(--moss);transform:translateY(-1px);}
+        .delete-modal{max-width:360px;text-align:center;}
+        .delete-icon{font-size:2.5rem;margin-bottom:12px;}
+        .delete-modal .modal-title{font-size:1.15rem;}
+        .delete-modal p{font-size:0.85rem;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+        .btn-delete-confirm{flex:2;padding:12px;background:var(--red);color:#fff;border:none;border-radius:10px;font-family:'Jost',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;transition:background 0.2s;}
+        .btn-delete-confirm:hover{background:#b91c1c;}
+        .toast{position:fixed;bottom:28px;right:28px;background:var(--forest);color:#fff;padding:12px 20px;border-radius:12px;font-size:0.85rem;font-weight:500;box-shadow:0 8px 28px rgba(27,58,45,0.28);z-index:500;display:none;animation:toastIn 0.3s ease;}
+        .toast.show{display:flex;align-items:center;gap:8px;}
+        @keyframes toastIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+        @media(max-width:900px){.stats-row{grid-template-columns:1fr 1fr;}}
+        @media(max-width:640px){.sidebar{width:200px;}.main{margin-left:200px;}.topbar{padding:14px 16px;}.content{padding:20px 16px;}.search-box{display:none;}.stats-row{grid-template-columns:1fr 1fr;gap:10px;}}
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <a class="sidebar-logo" href="#">
+        <div class="logo-icon">🌿</div>
+        <span class="logo-text">GreenGallery</span>
+    </a>
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+        <button class="nav-item active" onclick="setNav(this)">
+            <span class="nav-icon">🏠</span> Dashboard
+        </button>
+        <a class="nav-item-medicinal" href="usermedicinal.html">
+            <span class="nav-icon">🌿</span> Medicinal Benefits
+        </a>
+
+        <div class="nav-section-label">Account</div>
+        <button class="nav-item" onclick="setNav(this); window.location.href='profile.html';">
+            <span class="nav-icon">👤</span> Profile
+        </button>
+
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-card">
+            <div class="user-avatar">JD</div>
+            <div class="user-info">
+                <div class="user-name">Jane Doe</div>
+                <div class="user-role">USER</div>
+            </div>
+            <button class="logout-btn" title="Logout" onclick="window.location.href='login.html'">⏻</button>
+        </div>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+    <div class="topbar">
+        <div class="topbar-left">
+            <h1>My Dashboard</h1>
+<!--            <p id="dateLabel">Loading...</p>-->
+        </div>
+        <!-- ❌ Upload Plant button removed -->
+        <div class="topbar-right">
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="Search plants..." oninput="filterPlants(this.value)" />
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-emoji green">🌿</div>
+                <div class="stat-info">
+                    <div class="stat-num" id="totalCount">0</div>
+                    <div class="stat-label">Total Plants</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-emoji amber">🌸</div>
+                <div class="stat-info">
+                    <div class="stat-num" id="flowerCount">0</div>
+                    <div class="stat-label">Flowering</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-emoji blue">🌵</div>
+                <div class="stat-info">
+                    <div class="stat-num" id="succulentCount">0</div>
+                    <div class="stat-label">Succulents</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-emoji purple">🍃</div>
+                <div class="stat-info">
+                    <div class="stat-num" id="tropicalCount">0</div>
+                    <div class="stat-label">Tropical</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2 class="section-title">My Plant Collection</h2>
+            <div class="filter-tabs">
+                <button class="filter-tab active" onclick="filterCategory('All', this)">All</button>
+                <button class="filter-tab" onclick="filterCategory('Flowering', this)">Flowering</button>
+                <button class="filter-tab" onclick="filterCategory('Succulent', this)">Succulent</button>
+                <button class="filter-tab" onclick="filterCategory('Tropical', this)">Tropical</button>
+            </div>
+        </div>
+
+        <div class="plant-grid" id="plantGrid">
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">🌱</div>
+                <h3>No plants yet</h3>
+                <p>Upload your first plant image to start your collection!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-backdrop" id="editModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+        <h2 class="modal-title">✏️ Edit Plant Details</h2>
+        <input type="hidden" id="editId" />
+        <div class="mform-group">
+            <label>Plant Name *</label>
+            <input type="text" id="editName" placeholder="Plant name" />
+        </div>
+        <div class="mform-group">
+            <label>Category</label>
+            <select id="editCategory">
+                <option value="Tropical">Tropical</option>
+                <option value="Flowering">Flowering</option>
+                <option value="Succulent">Succulent</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="mform-group">
+            <label>Notes</label>
+            <textarea id="editNotes" rows="2"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal('editModal')">Cancel</button>
+            <button class="btn-save" onclick="saveEdit()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-backdrop" id="deleteModal">
+    <div class="modal delete-modal">
+        <div class="delete-icon">🗑️</div>
+        <h2 class="modal-title">Delete Plant?</h2>
+        <p>This will permanently remove <strong id="deleteName"></strong> from your collection. This action cannot be undone.</p>
+        <input type="hidden" id="deleteId" />
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal('deleteModal')">Cancel</button>
+            <button class="btn-delete-confirm" onclick="confirmDelete()">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
+
+</body>
+<script>
+
+    function setNav(el) {
+    document.querySelectorAll(".nav-item")
+        .forEach(btn => btn.classList.remove("active"));
+
+    el.classList.add("active");
+}
+    let plants = [];
+let activeCategory = "All";
+let searchQuery = "";
+
+// ─────────────────────────────
+// LOAD PLANTS FROM BACKEND
+// ─────────────────────────────
+async function loadPlants(userId) {
+    try {
+        // Fetch all plants (or use a dedicated endpoint for all plants)
+        const res = await fetch(`http://localhost:8080/api/plants`); // <-- All plants
+        if (!res.ok) throw new Error("Failed to fetch plants");
+
+        plants = await res.json();
+        console.log("Plants loaded:", plants);
+
+        render();
+    } catch (err) {
+        console.error("Error loading plants:", err);
+        const grid = document.getElementById("plantGrid");
+        if (grid) {
+            grid.innerHTML = `<p style="color:red;text-align:center;">Failed to load plants</p>`;
+        }
+    }
+}
+
+// ─────────────────────────────
+// RENDER PLANTS
+// ─────────────────────────────
+function render() {
+    const grid = document.getElementById("plantGrid");
+    const empty = document.getElementById("emptyState");
+    if (!grid) return;
+
+    grid.innerHTML = "";
+
+     document.getElementById("totalCount").innerText = plants.length;
+
+    document.getElementById("flowerCount").innerText =
+        plants.filter(p => p.category === "Flowering").length;
+
+    document.getElementById("succulentCount").innerText =
+        plants.filter(p => p.category === "Succulent").length;
+
+    document.getElementById("tropicalCount").innerText =
+        plants.filter(p => p.category === "Tropical").length;
+
+
+    const filtered = plants.filter(p => {
+        const matchCat = activeCategory === "All" || p.category === activeCategory;
+        const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchCat && matchSearch;
+    });
+
+    if (filtered.length === 0) {
+        empty.style.display = "flex";
+        grid.appendChild(empty);
+        return;
+    }
+
+    empty.style.display = "none";
+
+    filtered.forEach(plant => {
+        const card = document.createElement("div");
+        card.className = "plant-card";
+
+        const imgPath = plant.imagePath?.startsWith("/") ? plant.imagePath.substring(1) : plant.imagePath;
+
+        card.innerHTML = `
+        <div class="plant-img">
+            <img src="http://localhost:8080/${imgPath}" alt="${plant.name}" style="width:100%;height:160px;object-fit:cover;border-bottom:1px solid #d6e4d6;">
+        </div>
+        <div class="plant-info">
+            <div class="plant-name">${plant.name}</div>
+            <div class="plant-meta">
+                <span class="plant-tag">${plant.category || ""}</span>
+                <span class="plant-date">${plant.scientificName || ""}</span>
+            </div>
+        </div>
+        `;
+
+        grid.appendChild(card);
+    });
+}
+
+// ─────────────────────────────
+// PAGE LOAD
+// ─────────────────────────────
+window.addEventListener("DOMContentLoaded", () => {
+
+    const userId = sessionStorage.getItem("userId");
+
+    console.log("Logged user:", userId);
+
+    loadPlants(userId);
+
+
+    // ── SHOW LOGGED USER NAME ──
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (user) {
+
+        const nameElement = document.querySelector(".user-name");
+        const avatarElement = document.querySelector(".user-avatar");
+
+        const displayName = user.username || user.email || "User";
+
+        if (nameElement) {
+            nameElement.textContent = displayName;
+        }
+
+        if (avatarElement) {
+            avatarElement.textContent = displayName.charAt(0).toUpperCase();
+        }
+
+    }
+
+});
+</script>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>GreenGallery – Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --forest:   #1b3a2d;
+          --moss:     #2e5e44;
+          --sage:     #5a8f6e;
+          --mint:     #a8d5b5;
+          --cream:    #f7f4ef;
+          --paper:    #fdfcf9;
+          --border:   #d6e4d6;
+          --text:     #1a2418;
+          --muted:    #6b7c68;
+        }
+
+        html, body { height: 100%; }
+
+        body {
+          font-family: 'Jost', sans-serif;
+          background:
+            radial-gradient(ellipse 70% 60% at 80% 20%, rgba(90,143,110,0.18) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 50% at 10% 90%, rgba(168,213,181,0.2) 0%, transparent 60%),
+            var(--cream);
+          color: var(--text);
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+        }
+
+        /* NAV */
+        nav {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 22px 48px;
+        }
+        .logo {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          text-decoration: none;
+        }
+        .logo-icon {
+          width: 36px; height: 36px;
+          background: var(--forest);
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 18px;
+        }
+        .logo-text {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.35rem;
+          color: var(--forest);
+          font-weight: 700;
+        }
+        .nav-links {
+          display: flex;
+          align-items: center;
+          gap: 32px;
+          list-style: none;
+        }
+        .nav-links a {
+          text-decoration: none;
+          color: var(--muted);
+          font-size: 0.9rem;
+          font-weight: 500;
+          transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--forest); }
+
+        .btn-login {
+          background: var(--forest);
+          color: #fff;
+          border: none;
+          padding: 10px 26px;
+          border-radius: 50px;
+          font-family: 'Jost', sans-serif;
+          font-size: 0.88rem;
+          font-weight: 500;
+          cursor: pointer;
+          box-shadow: 0 4px 14px rgba(27,58,45,0.25);
+          transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+          text-decoration: none;
+          display: inline-block;
+        }
+        .btn-login:hover {
+          background: var(--moss);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(27,58,45,0.3);
+        }
+
+        /* HERO */
+        .hero {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 48px 48px;
+          max-width: 1200px;
+          margin: 0 auto;
+          width: 100%;
+        }
+
+        .hero-left { display: flex; flex-direction: column; gap: 24px; align-items: center; text-align: center; max-width: 600px; }
+
+        .hero-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: var(--mint);
+          color: var(--forest);
+          font-size: 0.78rem;
+          font-weight: 600;
+          padding: 6px 14px;
+          border-radius: 50px;
+          width: fit-content;
+          letter-spacing: 0.6px;
+          text-transform: uppercase;
+          animation: fadeUp 0.7s ease both;
+        }
+
+        .hero-title {
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(2.6rem, 4vw, 3.8rem);
+          line-height: 1.1;
+          color: var(--forest);
+          animation: fadeUp 0.7s 0.1s ease both;
+        }
+        .hero-title em { font-style: italic; color: var(--sage); }
+
+        .hero-desc {
+          font-size: 1.05rem;
+          color: var(--muted);
+          line-height: 1.7;
+          max-width: 440px;
+          font-weight: 300;
+          animation: fadeUp 0.7s 0.2s ease both;
+          text-align: center;
+        }
+
+        .hero-cta {
+          display: flex;
+          gap: 14px;
+          align-items: center;
+          animation: fadeUp 0.7s 0.3s ease both;
+        }
+
+        .btn-primary {
+          background: var(--forest);
+          color: #fff;
+          border: none;
+          padding: 14px 32px;
+          border-radius: 50px;
+          font-family: 'Jost', sans-serif;
+          font-size: 0.95rem;
+          font-weight: 500;
+          cursor: pointer;
+          box-shadow: 0 6px 20px rgba(27,58,45,0.28);
+          transition: background 0.2s, transform 0.15s;
+          text-decoration: none;
+          display: inline-block;
+        }
+        .btn-primary:hover { background: var(--moss); transform: translateY(-2px); }
+
+        .btn-outline {
+          background: transparent;
+          color: var(--forest);
+          border: 1.5px solid var(--border);
+          padding: 13px 28px;
+          border-radius: 50px;
+          font-family: 'Jost', sans-serif;
+          font-size: 0.95rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: border-color 0.2s, background 0.2s;
+        }
+        .btn-outline:hover { border-color: var(--sage); background: rgba(168,213,181,0.2); }
+
+        .hero-stats {
+          display: flex;
+          gap: 32px;
+          animation: fadeUp 0.7s 0.4s ease both;
+        }
+        .stat { display: flex; flex-direction: column; gap: 2px; }
+        .stat-num {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.6rem;
+          color: var(--forest);
+          font-weight: 700;
+        }
+        .stat-label { font-size: 0.78rem; color: var(--muted); }
+
+        /* PLANT CARDS */
+        .hero-right {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-template-rows: 1fr 1fr;
+          gap: 14px;
+          height: 420px;
+          animation: fadeUp 0.7s 0.2s ease both;
+        }
+        .plant-card {
+          border-radius: 20px;
+          overflow: hidden;
+          position: relative;
+          box-shadow: 0 8px 30px rgba(27,58,45,0.12);
+          transition: transform 0.3s;
+        }
+        .plant-card:hover { transform: scale(1.02); }
+        .plant-card:nth-child(1) { grid-row: 1 / 3; border-radius: 24px; }
+
+        .plant-bg {
+          width: 100%; height: 100%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 4rem;
+          position: relative;
+        }
+        .plant-bg-1 { background: linear-gradient(135deg, #2e5e44, #4a8c5c); }
+        .plant-bg-2 { background: linear-gradient(135deg, #a8d5b5, #7ab87a); }
+        .plant-bg-3 { background: linear-gradient(135deg, #c9a84c, #e8c97a); }
+
+        .plant-label {
+          position: absolute;
+          bottom: 12px; left: 12px;
+          background: rgba(255,255,255,0.92);
+          backdrop-filter: blur(8px);
+          padding: 5px 12px;
+          border-radius: 50px;
+          font-size: 0.72rem;
+          font-weight: 600;
+          color: var(--forest);
+        }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+          nav { padding: 18px 20px; }
+          .nav-links { display: none; }
+          .hero { grid-template-columns: 1fr; padding: 20px; }
+          .hero-right { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a class="logo" href="index.html">
+        <div class="logo-icon">🌿</div>
+        <span class="logo-text">GreenGallery</span>
+    </a>
+
+    <a class="btn-login" href="login.html">Login</a>
+</nav>
+
+<main class="hero">
+    <div class="hero-left">
+        <div class="hero-badge">🌱 Plant Enthusiasts Platform</div>
+        <h1 class="hero-title">
+            Your plants,<br/>
+            beautifully <em>organized</em>
+        </h1>
+        <p class="hero-desc">
+            GreenGallery is your personal space to upload, manage, and celebrate your plant collection. Every leaf has a story — tell yours.
+        </p>
+        <div class="hero-cta">
+            <a class="btn-primary" href="login.html">Get Started Free</a>
+        </div>
+
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-num">500+</span>
+                <span class="stat-label">Plant Species</span>
+            </div>
+            <div class="stat">
+                <span class="stat-num">10k+</span>
+                <span class="stat-label">Images Stored</span>
+            </div>
+            <div class="stat">
+                <span class="stat-num">100%</span>
+                <span class="stat-label">Private & Secure</span>
+            </div>
+        </div>
+    </div>
+
+
+</main>
+
+</body>
+</html>
